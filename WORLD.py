@@ -24,6 +24,10 @@ train_data_loader = data.DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=T
 test_data = torchvision.datasets.ImageFolder(root=TEST_DATA_PATH, transform=TRANSFORM_IMG)
 test_data_loader  = data.DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=4) 
 
+print("TRAIN")
+print(train_data.classes)
+print("TEST")
+print(test_data.classes)
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -49,10 +53,9 @@ class CNN(nn.Module):
 
     def forward(self, x):
         x = self.convs(x)
-        x = x.view(-1, self._to_linear)
+        x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        return F.softmax(x, dim=1)
 
 
 if __name__ == '__main__':
@@ -63,7 +66,7 @@ if __name__ == '__main__':
 
     model = CNN()    
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    loss_func = nn.BCELoss()    
+    loss_func = nn.BCEWithLogitsLoss()    
 
     # Training and Testing
     for epoch in range(EPOCHS):        
