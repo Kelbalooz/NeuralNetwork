@@ -6,11 +6,12 @@ import torch.utils.data as data
 import torchvision
 from torchvision import transforms
 
-EPOCHS = 2
+EPOCHS = 3
 BATCH_SIZE = 10
 LEARNING_RATE = 0.003
 TRAIN_DATA_PATH = "./images/train/"
 TEST_DATA_PATH = "./images/test/"
+
 TRANSFORM_IMG = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
     transforms.Resize(256),
@@ -24,10 +25,6 @@ train_data_loader = data.DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=T
 test_data = torchvision.datasets.ImageFolder(root=TEST_DATA_PATH, transform=TRANSFORM_IMG)
 test_data_loader  = data.DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=4) 
 
-print("TRAIN")
-print(train_data.classes)
-print("TEST")
-print(test_data.classes)
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -39,7 +36,7 @@ class CNN(nn.Module):
         self._to_linear = None
         self.convs(x)
 
-        self.fc1 = nn.Linear(self._to_linear, 512)
+        self.fc1 = nn.Linear(100352, 512)
         self.fc2 = nn.Linear(512, 2)
 
     def convs(self, x):
@@ -56,6 +53,7 @@ class CNN(nn.Module):
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+        return x
 
 
 if __name__ == '__main__':
@@ -73,7 +71,13 @@ if __name__ == '__main__':
         for step, (x, y) in enumerate(train_data_loader):
             b_x = Variable(x)   # batch x (image)
             b_y = Variable(y)   # batch y (target)
-            output = model(b_x)[0]          
+            output = model(b_x)
+            print("b_x")
+            print(b_x)
+            print("b_y")
+            print(b_y)
+            print("OUTPUT")
+            print(output)
             loss = loss_func(output, b_y)   
             optimizer.zero_grad()           
             loss.backward()                 
